@@ -4,7 +4,9 @@ from math import radians, cos, sin, asin, sqrt
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
 from geopy.geocoders import Nominatim
+import json
 geolocator = Nominatim()
+
 
 
 
@@ -14,10 +16,10 @@ app = Flask(__name__)
 def my_form():
     return render_template('input.html')
 
-@app.route("/detect",methods=["POST"])
+@app.route("/detect",methods=["GET"])
 def hello():
-    lat = int(request.form["Latitude"])
-    long = int(request.form["Longitude"])
+    lat = float(request.args["lat"])
+    long = float(request.args["long"])
     flag = 'null'
     with open("data.pkl","rb") as f:
         df = pkl.load(f)
@@ -33,22 +35,9 @@ def hello():
         return 'No place found'
 
 
-def check1(long,lat):
-    flag = 'null'
-    with open("data.pkl","rb") as f:
-        df = pkl.load(f)
-    for place in df.columns:
-        polygon = Polygon(df[place].values[0]) # create polygon
-        point = Point(long,lat) # create point
-#         print(point.within(polygon))
-        if(point.within(polygon)):
-            flag = place
-    if flag != 'null':
-        return flag
-    else:
-        return 'No place found'
+
 #calculating the distance between two Point
-def haversine(lon1, lat1, lon2, lat2):
+def distance(lon1, lat1, lon2, lat2):
     """
     Calculate the great circle distance between two points
     on the earth (specified in decimal degrees)
@@ -68,22 +57,26 @@ def haversine(lon1, lat1, lon2, lat2):
 @app.route("/get_using_self")
 def postcode():
     long, lat = [float(request.args.get('long')), float(request.args.get('lat'))]
-    city_belong = check1(long,lat)
     with open("data.pkl","rb") as f:
             df = pkl.load(f)
-
-    if city_belong != 'No place found':
+    details = {}
+    for city_belong in df.columns:
         test_point = df[city_belong][0]
-        ptcd = []
+    #     print(city_belong,test_point)
+
+
         for i in test_point:
-            a=haversine(long,lat,i[0],i[1])
+            distance_in_km = distance(long,lat,i[0],i[1])
     #         print('Distance (km):',a)
-            if a<= 5:
+            if distance_in_km <= 5:
                 location  = geolocator.reverse([i[1],i[0]])
                 if location != None:
-                    ptcd.append(str(location.raw['address']['postcode']))
-        return ' '.join(ptcd)
-
+                    details[location.raw['address']['postcode']] = location.raw['display_name']
+                    print(location.raw['address']['postcode'])
+                    print(location.raw['display_name'])
+                    
+    return json.dumps(details)
+            
 
 if __name__ == '__main__':
     app.run(debug=True)
