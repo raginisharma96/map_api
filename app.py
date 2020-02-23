@@ -17,7 +17,7 @@ def my_form():
     return render_template('input.html')
 
 @app.route("/detect",methods=["GET"])
-def hello():
+def getPlaceName():
     lat = float(request.args["lat"])
     long = float(request.args["long"])
     flag = 'null'
