@@ -18,6 +18,7 @@ To do this, mathematical computation of radius needs to be done. There are two w
 2. /get_using_self - Implementing the mathematical computation.  
 
 ## Data Collection
+The data source for this project has been referred through the below mentioned link.
 https://gist.github.com/ramsingla/6202001?short_path=7d9a995
 
 ## Tech Stack Used
