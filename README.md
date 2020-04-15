@@ -22,9 +22,8 @@ The data source for this project has been referred through https://gist.github.c
 
 ## Tech Stack Used
 Environment : Python3
-1. Keras
-2. Numpy
-3. Tensorflow
-4. Pandas
-5. Nltk
-6. String
+1. shapely
+2. geopy
+3. flask
+4. pickle
+5. json
